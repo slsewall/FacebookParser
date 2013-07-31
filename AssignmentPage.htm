@@ -1,0 +1,105 @@
+
+<!-- saved from url=(0064)http://www.cise.ufl.edu/class/cop3530sp13/projects/project2.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Project 2 - Sorting Out Your Friends</title><style type="text/css"></style></head>
+<body>
+
+<h2>Project 2 - Sorting Out Your Friends</h2>
+	<p><b>Due Friday, 2/15/13, 3PM, E-Learning</b>
+
+</p><p>The Facebook Graph API allows you easy access to all the data available on Facebook.  You can read about it <a href="https://developers.facebook.com/docs/reference/api/">here</a>.
+</p><p>For this project, you will be downloading a list of your friends birthdays, names, and locations, parsing it out, storing them in a data structure in memory, and sorting them based on different criteria.  If you do not have a Facebook account, or you have very few friends, please generate a fake list of 100+ friends using the format below or contact the instructor for a list.</p>
+<p>To access this list, you will need to log on to Facebook and enter the following URL into a browser window.  You will need to somehow discover your access token (it's somewhere on the Developers site - you'll probably have to pull it off the URL from a link - I found it on the News Feed link at this address <a href="https://developers.facebook.com/docs/reference/api/search/">https://developers.facebook.com/docs/reference/api/search/</a>) (<font color="red">UPDATE: Not many people have locations, so just use hometown instead</font>): https://graph.facebook.com/me/friends?fields=birthday,first_name,last_name,<font color="red">hometown</font>&amp;limit=1000&amp;access_token=&lt;put your access token here&gt;</p>
+
+
+<p>The list will be in the following format.  Our program will cut out those users who do not have one of the four fields of interest.  We will only be considering the month and the day of the birthdays.  To do the parsing, you can use the JSON parser at <a href="https://github.com/udp/json-parser/">https://github.com/udp/json-parser/</a>.  To piece together the API, look at the Readme file and also the wrap_json.c file in the bindings/python directory.  Here is a sample program using the parser: <a href="http://www.cise.ufl.edu/class/cop3530sp13/projects/countryLister.cpp">countryLister.cpp</a> (same thing in VJSON <a href="http://www.cise.ufl.edu/class/cop3530sp13/projects/countryLister_vjson.cpp">countryLister_vjson.cpp</a>) and an input file <a href="http://www.cise.ufl.edu/class/cop3530sp13/projects/countries.json">countries.json</a>  Please include the json.c and json.h files in your Makefile and submit them with the project.  Alternatively, you can find another JSON library that's better documented and include it in your submission in the same way (<a href="http://code.google.com/p/vjson/">VJSON</a> is so much easier).  Alternatively, you can just use C++ input and string manipulation classes and do all the parsing yourself.
+</p><pre>{ 
+   "data": [
+      {
+         "birthday": "04/21",
+         "first_name": "Bob",
+         "last_name": "Doe",
+         "hometown": {
+            "id": "107572595951",
+            "name": "Madison, Wisconsin"
+         },
+         "id": "11006321"
+      },
+      {
+         "birthday": "06/30/1983",
+         "first_name": "John",
+         "last_name": "Smith",
+         "hometown": {
+            "id": "10865498155",
+            "name": "Chicago, Illinois"
+         },
+         "id": "1104165"
+      }
+}
+</pre>
+<p><b>30-second lesson on JSON:</b> It's composed of objects, which are made up of key-value pairs.  The whole file is an object.  It contains a key-value pair with the key "data" and a value which is an array of objects.  Each object in the array represents a person and contains up to 5 key-value pairs.  For example, one has the key "birthday" and a value which is a string.  One of them, hometown (or location), has an object for its value.  You can treat this object in exactly the same way you treated those objects representing people - namely, you check for a given key and get the associated string value.
+</p><p>Your program will include a console menu system.  It will first have you specify a file name (which contains friends in the format above), then let you choose from three different data structures (an arrayList, a chain, and a hashtable).  It will also let you choose a criterion (name, birthday or location) for comparing, hashing, etc.  For the two linear lists, it will cycle through a menu that will let you reverse the list, do an insertion sort <font color="red">(quicksort requirement was removed)</font>, print out the list, print out the element accesses and execution time for the last operation (you will need to count the number of times you accessed individual elements in the structure), or quit.  For the hashtable, just allow the user to specify a value for the criterion specified earlier and print out all users that match that criterion.
+
+</p><p>For this project, you can either extend textbook classes or create your own (I recommend creating your own - but if you use a template class, you will need comparison methods in your Person class to make it sortable).  All three of your structures should extend a common abstract class with add and getAccessCountForLastOperation methods <font color="red">(explicit iterator requirement has been removed, but you will need to find a clean way to output things)</font>.  Both of your list structures should extend an abstract class that includes reverse, and insertion sort.  All of your classes should keep track of how many accesses are required for a given operation (reverse, sort, etc.) and how much time is spent performing that operation - so for your chain and hashtable, you will be keeping track of how many pointers you have to follow to get to each element.  You should create a Person class that can be used in any of the structures (go ahead and throw an optional "next" pointer in there so you can use it as a ChainNode).
+
+</p><p>For grading purposes, it should also be possible to call the program with a filename followed by a series of numerical command-line parameters (structure type, criterion, command1, command2, command3...) and get the output directly (rather than use the UI).
+</p><p>For this project, your deliverables will include any .h and .cpp files you created, a main.cpp file, and a Makefile that compiles your code to an executable called 'friendSorter'.  Put everything in a single ZIP file and submit it to E-Learning.
+
+</p><h4>Common Issues and Fixes</h4>
+<ul>
+<li>Sometimes values for location/hometown might be null - you need to check for this condition.  Look in countryLister.cpp for an example of how to do this.</li>
+</ul>
+
+
+<h4>Things you can lose points for</h4>
+<ul>
+<li>-30: Doesn't compile using g++ on storm.cise.ufl.edu - this applies even if it works fine on Visual Studio.</li>
+<li>-10: Missing Makefile</li>
+<li>-15: Using hardcoded filename (you should be using command-line specified filename)</li>
+<li>-15: Missing either non-interactive or interactive interface.</li>  
+<li>-ceil(hoursSinceDeadline / 12) * 10: Penalty for late submissions</li>
+</ul>
+
+<h4>Example Menu</h4>
+<pre>Please enter a filename:
+friendInput.txt
+
+Please choose a data structure:
+	1. Arraylist
+	2. Chain
+	3. Hashtable
+1
+
+Please choose a criteria:  // Same regardless of which structure you choose.
+	1. Name
+	2. Birthday
+	3. Location
+1
+
+Please choose a command: // Only for linear lists
+	1. Reverse List
+	2. Sort using insertion sort
+	3. Print out number of accesses and execution time for last operation
+	4. Print out list
+	5. Exit
+
+Enter a value for the selected criteria: // Only for hashtables, you can exit after you print out the matches and accesses/execution time.
+	Gainesville, FL
+
+
+//Output lists should just be a list of names separated by newlines and, in the case of a non-name criteria, the birthday or location in parentheses. 
+
+Example:
+Sosa, Sammy (Gainesville, FL)
+Hanks, Tom (Gainesville, FL)
+Bush, Barbara (Gainesville, FL)
+</pre>
+
+<h4>Example Command-Line Entries</h4>
+
+./FriendSorter friendInput.txt 1 1 2 1 3 4 5 5
+<br>./FriendSorter friendInput.txt 3 3 "Gainesville, FL"
+
+<p>Output will be checked by manual inspection and not programmatically.
+
+
+</p></body><script type="text/javascript">var new_nav = new function() {};var x;var old_navigator = window.navigator;for (x in navigator) {if (typeof navigator[x] == 'function') {eval("new_nav." + x + " = function() { return old_navigator." + x + "();};");} else {eval("new_nav." + x + " = navigator." + x + ";");}}new_nav.userAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.71 Safari/537.36";new_nav.vendor = "";window.navigator = new_nav;</script></html>
